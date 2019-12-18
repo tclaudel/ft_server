@@ -1,6 +1,8 @@
 # Image de base
 FROM debian:buster
 
+LABEL tclaudel="contact@tclaudel.fr"
+
 # Downloading packages
 RUN apt-get update
 RUN apt-get install -y nginx
@@ -11,33 +13,37 @@ RUN apt-get install -y php-mbstring
 RUN apt-get install -y git
 RUN apt-get install -y php-mysql
 RUN apt-get install -y zsh
+RUN apt-get install -y curl
+RUN apt-get install -y vim
 
-EXPOSE 80:80
+EXPOSE 80
 
+COPY	srcs/default.conf /etc/nginx/sites-enabled/
+
+RUN		rm -f /etc/nginx/sites-enabled/default
+
+#working in -> /var/www/html
 WORKDIR	/var/www/html
 
-#Creating database
+#Installing oh-my-zsh
+RUN		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-#ADD ./srcs/setup_database.sh /usr/bin/setup_database.sh
-#RUN chmod 755 /usr/bin/setup_database.sh
-#CMD "setup_database.sh"
+#Wordpress
+RUN		wget https://wordpress.org/latest.tar.gz
 
-#Installing wordpress
+RUN		tar xvf latest.tar.gz && \
+		rm -f latest.tar.gz
 
-ADD ./srcs/setup_wordpress.sh ./setup_wordpress.sh
-RUN chmod 755 ./setup_wordpress.sh
-CMD "setup_wordpress.sh"
+COPY	srcs/wp-config.php wordpress/
+COPY 	srcs/index.html ./
+COPY 	srcs/logo_wordpress.jpg ./
+COPY 	srcs/logo-phpmyadmin.jpg ./
 
+#Setup database
+RUN		service mysql start && \
+		mysql -e "CREATE DATABASE wordpress" && \
+		mysql -e "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" && \
+		mysql -e "GRANT ALL PRIVILEGES ON phpmyadmin.* TO 'root'@'localhost' IDENTIFIED BY 'password';" && \ 
+		mysql -e "FLUSH PRIVILEGES;"
 
-
-ADD ./srcs/start.sh /usr/bin/start.sh
-#ADD ./srcs/lunch_nginx.sh /usr/bin/lunch_nginx.sh
-#ADD ./srcs/my_sql_install.sh /usr/bin/my_sql_install.sh
-#ADD ./srcs/php_my_admin_install.sh /usr/bin/php_my_admin_install.sh
-
-RUN chmod 755 /usr/bin/start.sh
-#RUN chmod 755 /usr/bin/lunch_nginx.sh
-#RUN chmod 755 ./usr/bin//my_sql_install.sh
-#RUN chmod 755 /usr/bin//php_my_admin_install.sh
-
-CMD "start.sh"
+CMD 	service mysql restart && echo "Launching nginx" && service php7.3-fpm start &&  nginx -g 'daemon off;'
