@@ -4,7 +4,7 @@
 define('DB_NAME', 'wordpress');
 
 /** Utilisateur de la base de données MySQL. */
-define('DB_USER', 'root');
+define('DB_USER', 'user');
 
 /** Mot de passe de la base de données MySQL. */
 define('DB_PASSWORD', 'password');
@@ -19,3 +19,13 @@ define('DB_CHARSET', 'utf8');
   * N’y touchez que si vous savez ce que vous faites.
   */
 define('DB_COLLATE', '');
+
+$table_prefix = 'wp_';
+
+define( 'WP_DEBUG', false );
+
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/' );
+}
+
+require_once( ABSPATH . 'wp-settings.php' );
