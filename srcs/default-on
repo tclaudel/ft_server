@@ -5,8 +5,8 @@
 #                                                  +:+:+   +:    +:  +:+:+     #
 #    By: tclaudel <tclaudel@student.le-101.fr>      +:+   +:    +:    +:+      #
 #                                                  #+#   #+    #+    #+#       #
-#    Created: 2019/12/19 10:51:09 by tclaudel     #+#   ##    ##    #+#        #
-#    Updated: 2019/12/19 12:42:01 by tclaudel    ###    #+. /#+    ###.fr      #
+#    Created: 2019/12/16 17:47:38 by rmazars      #+#   ##    ##    #+#        #
+#    Updated: 2019/12/19 15:58:32 by tclaudel    ###    #+. /#+    ###.fr      #
 #                                                          /                   #
 #                                                         /                    #
 # **************************************************************************** #
@@ -32,6 +32,13 @@
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
+    return 301 https://$host$request_uri;
+    }
+    # SSL configuration
+    #
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
     #
     # Note: You should disable gzip for SSL traffic.
     # See: https://bugs.debian.org/773332
@@ -43,9 +50,9 @@ server {
     # Don't use them in a production server!
     #
     # include snippets/snakeoil.conf;
-    #ssl on;
-   # ssl_certificate localhost.pem;
-    #ssl_certificate_key localhost-key.pem;
+    ssl on;
+    ssl_certificate localhost.pem;
+    ssl_certificate_key localhost-key.pem;
     root /var/www/html;
     # Add index.php to the list if you are using PHP
     autoindex on;

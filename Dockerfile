@@ -17,13 +17,12 @@ RUN apt-get install -y zsh
 RUN apt-get install -y curl
 RUN apt-get install -y vim
 RUN apt-get install -y default-mysql-client
+RUN apt-get install -y libnss3-tools
+RUN apt-get install -y npm
 
 EXPOSE 80
 
 COPY	srcs/default-off /etc/nginx/sites-available/default
-
-#RUN		rm -f /etc/nginx/sites-enabled/default
-
 
 #working in -> /var/www/html
 WORKDIR	/var/www/html
@@ -56,10 +55,20 @@ RUN		service mysql start && \
 		echo "grant all privileges on wordpress.* to user@localhost;" | mysql -u root && \
 		echo "flush privileges;" | mysql -u root
 
+#mkcert
+RUN		mkdir ~/mkcert && \
+		cd ~/mkcert && \
+  		wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v1.1.2-linux-amd64 && \
+  		mv mkcert-v1.1.2-linux-amd64 mkcert && \
+  		chmod +x mkcert && \
+		./mkcert -install && \
+		./mkcert localhost && \
+		cp /root/mkcert/* /etc/nginx/
+
 COPY	srcs/config.inc.php ./phpmyadmin/
 
 RUN		chmod 660 /var/www/html/phpmyadmin/config.inc.php && chown -R www-data:www-data /var/www/html/phpmyadmin
 
 RUN		chown www-data:www-data * -R && usermod -a -G www-data www-data
 
-CMD 	service mysql restart && echo "Launching nginx" && service php7.3-fpm start &&  nginx -g 'daemon off;'
+CMD 	service mysql restart 2> /dev/null && echo "Launching nginx" && service php7.3-fpm start &&  nginx -g 'daemon off;'
