@@ -33,7 +33,7 @@ RUN		mkdir /wordpress
 RUN		sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 #Wordpress
-COPY	./wordpress ./wordpress/
+COPY	srcs/wordpress ./wordpress/
 COPY	srcs/wp-config.php wordpress/
 COPY 	srcs/index.html ./
 COPY 	srcs/logo_wordpress.jpg ./
